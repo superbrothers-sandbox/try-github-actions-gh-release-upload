@@ -1,0 +1,29 @@
+name: Releaes
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+    - id: version
+      run: |
+        VERSION=$(echo ${{ github.ref }} | sed -e "s#refs/tags/v##g")
+        echo ::set-output name=version::${VERSION}
+    - uses: actions/checkout@v2
+    - id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: ${{ github.ref }}
+        draft: false
+        prerelease: false
+    - run: |
+        gh release upload "v${{ steps.version.outputs.version }}" README.md
+      env:
+        GITHUB_TOKEN: ${ secrets.GITHUB_TOKEN }}
